@@ -1,5 +1,5 @@
-import streamlit as st
 import pytesseract
+import streamlit as st
 from PIL import Image
 
 # Page segmentation modes:
