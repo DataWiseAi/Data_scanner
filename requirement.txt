@@ -1,0 +1,5 @@
+PIL
+pytesseract
+streamlit
+cv2
+numpy
