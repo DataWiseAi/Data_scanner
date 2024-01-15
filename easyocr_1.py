@@ -1,10 +1,8 @@
 import streamlit as st
-import pytesseract
 import cv2
 from PIL import Image
 import numpy as np
-
-myconfig = r"--psm 11 --oem 3"
+import easyocr
 
 def main():
     st.title("Text Detection and Bounding Boxes App")
@@ -20,12 +18,15 @@ def main():
         img_cv = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
         height, width, _ = img_cv.shape
 
-        # Perform text detection and draw bounding boxes
-        boxes = pytesseract.image_to_boxes(img_cv, config=myconfig)
-        for box in boxes.splitlines():
-            box = box.split(" ")
-            img_cv = cv2.rectangle(img_cv, (int(box[1]), height - int(box[2])),
-                                    (int(box[3]), height - int(box[4])), (0, 255, 0), 2)
+        # Perform text detection and draw bounding boxes using easyocr with GPU acceleration
+        reader = easyocr.Reader(['en'], gpu=True)  # Enable GPU acceleration
+        results = reader.readtext(img_cv)
+
+        # Draw bounding boxes on the image
+        for result in results:
+            points = result[0]
+            box = np.array(points).astype(np.int32).reshape((-1, 1, 2))
+            img_cv = cv2.polylines(img_cv, [box], isClosed=True, color=(0, 255, 0), thickness=2)
 
         # Display the image with bounding boxes
         st.image(img_cv, caption="Text Detection with Bounding Boxes", use_column_width=True)
